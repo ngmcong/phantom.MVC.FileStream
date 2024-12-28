@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Net;
 
@@ -7,8 +8,9 @@ namespace phantom.MVC.FileStream.Controllers
     public class VideosController : Controller
     {
         int readStreamBufferSize = 65536;
-        string videoPath = "";
+        string videoPath = "F:\\media.webm";
 
+        [EnableCors]
         [Route("api/online/{index}")]
         public IActionResult Get(int index)
         {

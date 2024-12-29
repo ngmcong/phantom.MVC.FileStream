@@ -1,60 +1,76 @@
 ﻿@{
-	ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home Page";
 }
-<video id="videoNode" style="height: 70%;" controls="controls" autoplay="autoplay" muted></video>
+<video controls="controls" autoplay="autoplay"></video>
 @section Scripts {
-	<script type="text/javascript">
-		(async () => {
-			const videoElement = document.querySelector('video');
+    <script>
+        (async() => {
+          const mediaSource = new MediaSource();
 
-			// Create a MediaSource instance and connect it to video element
-			const mediaSource = new MediaSource();
-			// This creates a URL that points to the media buffer,
-			// and assigns it to the video element src
-			videoElement.src = URL.createObjectURL(mediaSource);
+          const video = document.querySelector("video");
 
-			// Video that will be fetched and appended
-			const remoteVidUrl = `https://localhost:7000/api/online/0`;
+          // video.oncanplay = e => video.play();
 
-			// Fetch remote URL, getting contents as binary blob
-			const vidBlob = await (await fetch(remoteVidUrl)).blob();
-			// We need array buffers to work with media source
-			const vidBuff = await vidBlob.arrayBuffer();
+          const urls = ["https://localhost:7000/api/online/0", "https://localhost:7000/api/online/1"];
 
-			/**
-			 * Before we can actually add the video, we need to:
-			 *  - Create a SourceBuffer, attached to the MediaSource object
-			 *  - Wait for the SourceBuffer to "open"
-			 */
-			/** type {SourceBuffer} */
-			const sourceBuffer = await new Promise((resolve, reject) => {
-				const getSourceBuffer = () => {
-					try {
-						const sourceBuffer = mediaSource.addSourceBuffer(`video/webm; codecs="vp9,opus"`);
-						resolve(sourceBuffer);
-					} catch (e) {
-						reject(e);
-					}
-				};
-				if (mediaSource.readyState === 'open') {
-					getSourceBuffer();
-				} else {
-					mediaSource.addEventListener('sourceopen', getSourceBuffer);
-				}
-			});
+          const request = url => fetch(url).then(response => response.arrayBuffer());
 
-			// Now that we have an "open" source buffer, we can append to it
-			sourceBuffer.appendBuffer(vidBuff);
-			// Listen for when append has been accepted and
-			// You could alternative use `.addEventListener` here instead
-			sourceBuffer.onupdateend = () => {
-				// Nothing else to load
-				mediaSource.endOfStream();
-				// Start playback!
-				// Note: this will fail if video is not muted, due to rules about
-				// autoplay and non-muted videos
-				videoElement.play();
-			};
-		})();
-	</script>
+          // `urls.reverse()` stops at `.currentTime` : `9`
+          const files = await Promise.all(urls.map(request));
+
+          /*
+           `.webm` files
+           Uncaught DOMException: Failed to execute 'appendBuffer' on 'SourceBuffer': This SourceBuffer has been removed from the parent media source.
+           Uncaught DOMException: Failed to set the 'timestampOffset' property on 'SourceBuffer': This SourceBuffer has been removed from the parent media source.
+          */
+          // const mimeCodec = "video/webm; codecs=opus";
+          // https://stackoverflow.com/questions/14108536/how-do-i-append-two-video-files-data-to-a-source-buffer-using-media-source-api/
+          const mimeCodec = "video/mp4; codecs=avc1.42E01E, mp4a.40.2";
+
+
+          const media = await Promise.all(files.map(file => {
+            return new Promise(resolve => {
+              let media = document.createElement("video");
+              let blobURL = URL.createObjectURL(new Blob([file]));
+              media.onloadedmetadata = async e => {
+                resolve({
+                  mediaDuration: media.duration,
+                  mediaBuffer: file
+                })
+              }
+              media.src = blobURL;
+            })
+          }));
+
+          console.log(media);
+
+          mediaSource.addEventListener("sourceopen", sourceOpen);
+
+          video.src = URL.createObjectURL(mediaSource);
+
+          async function sourceOpen(event) {
+
+            if (MediaSource.isTypeSupported(mimeCodec)) {
+              const sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+
+              for (let chunk of media) {
+                await new Promise(resolve => {
+                  sourceBuffer.appendBuffer(chunk.mediaBuffer);
+                  sourceBuffer.onupdateend = e => {
+                    sourceBuffer.onupdateend = null;
+                    sourceBuffer.timestampOffset += chunk.mediaDuration;
+                    console.log(mediaSource.duration);
+                    resolve()
+                  }
+                })
+
+              }
+              mediaSource.endOfStream();
+            }
+            else {
+              console.warn(mimeCodec + " not supported");
+            }
+          };
+        })()
+    </script>
 }

@@ -8,12 +8,14 @@ namespace phantom.MVC.FileStream.Controllers
     public class VideosController : Controller
     {
         int readStreamBufferSize = 65536;
-        string videoPath = "F:\\media.webm";
+        string videoPath = "F:\\123.webm";
+        string[] videoPaths = new string[] { "F:\\sintel-video.mp4", "F:\\frag_bunny.mp4", "F:\\test.mp4" };
 
         [EnableCors]
         [Route("api/online/{index}")]
         public IActionResult Get(int index)
         {
+            videoPath = videoPaths[index];
             var stream = new System.IO.FileStream(videoPath, FileMode.Open, FileAccess.Read); //Got from storage
             if (stream == null) return NotFound();
 

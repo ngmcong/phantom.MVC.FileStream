@@ -7,15 +7,15 @@ namespace phantom.MVC.FileStream.Controllers
 {
     public class VideosController : Controller
     {
+        //F:\Bento4-SDK-1-6-0-641.x86_64-microsoft-win32\bin\mp4fragment.exe --fragment-duration 10000 F:\123.mp4 F:\1123.mp4
         int readStreamBufferSize = 65536;
-        string videoPath = "F:\\123.webm";
-        string[] videoPaths = new string[] { "F:\\sintel-video.mp4", "F:\\frag_bunny.mp4", "F:\\test.mp4" };
+        string[] videoPaths = new string[] { "F:\\1123.mp4" };
 
         [EnableCors]
         [Route("api/online/{index}")]
         public IActionResult Get(int index)
         {
-            videoPath = videoPaths[index];
+            var videoPath = videoPaths[index];
             var stream = new System.IO.FileStream(videoPath, FileMode.Open, FileAccess.Read); //Got from storage
             if (stream == null) return NotFound();
 

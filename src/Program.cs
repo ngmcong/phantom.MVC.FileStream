@@ -1,23 +1,32 @@
+using Microsoft.AspNetCore.ResponseCompression;
+using phantom.MVC.FileStream;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(
-        builder =>
-        {
-            builder
-                .WithOrigins(
-                    "https://localhost:7000",
-                    "https://localhost:7001")
-                //.SetIsOriginAllowedToAllowWildcardSubdomains()
-                .SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
-});
+    {
+        options.AddDefaultPolicy(
+            builder =>
+            {
+                builder
+                    .WithOrigins(
+                        "https://localhost:7000",
+                        "https://localhost:7001")
+                    //.SetIsOriginAllowedToAllowWildcardSubdomains()
+                    .SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+    })
+    .AddResponseCompression()
+    .AddResponseCompression(options =>
+    {
+        options.Providers.Add<GzipCompressionProvider>();
+        options.EnableForHttps = true;
+    });
 
 
 var app = builder.Build();
@@ -37,6 +46,11 @@ app.UseRouting();
 app.UseCors();
 app.UseAuthorization();
 
+app.UseResponseCompression();
+
+app.MapControllerRoute(
+   name: "Video",
+   pattern: "{area:exists}/{controller=Home}/{action=Video}/{videoIndex?}");
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

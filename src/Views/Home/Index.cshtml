@@ -1,76 +1,52 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewBag.Title = "Home Page";
 }
-<video controls="controls" autoplay="autoplay"></video>
+<style>
+    div.row .card img {
+        max-height: 200px;
+    }
+</style>
+<link href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        GroupName
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        @foreach (var item in ViewBag.GroupNames)
+        {
+            <a class="dropdown-item" href='@Url.Action("Index", "Home", new { groupName = item })'>@item</a>
+        }
+    </div>
+</div>
+<div class="row row-cols-1 row-cols-md-4 g-4">
+</div>
 @section Scripts {
-    <script>
-        (async() => {
-          const mediaSource = new MediaSource();
-
-          const video = document.querySelector("video");
-
-          // video.oncanplay = e => video.play();
-
-          const urls = ["https://localhost:7000/api/online/0"];
-
-          const request = url => fetch(url).then(response => response.arrayBuffer());
-
-          // `urls.reverse()` stops at `.currentTime` : `9`
-          const files = await Promise.all(urls.map(request));
-
-          /*
-           `.webm` files
-           Uncaught DOMException: Failed to execute 'appendBuffer' on 'SourceBuffer': This SourceBuffer has been removed from the parent media source.
-           Uncaught DOMException: Failed to set the 'timestampOffset' property on 'SourceBuffer': This SourceBuffer has been removed from the parent media source.
-          */
-          // const mimeCodec = "video/webm; codecs=opus";
-          // https://stackoverflow.com/questions/14108536/how-do-i-append-two-video-files-data-to-a-source-buffer-using-media-source-api/
-          const mimeCodec = "video/mp4; codecs=avc1.42E01E, mp4a.40.2";
-
-
-          const media = await Promise.all(files.map(file => {
-            return new Promise(resolve => {
-              let media = document.createElement("video");
-              let blobURL = URL.createObjectURL(new Blob([file]));
-              media.onloadedmetadata = async e => {
-                resolve({
-                  mediaDuration: media.duration,
-                  mediaBuffer: file
-                })
-              }
-              media.src = blobURL;
-            })
-          }));
-
-          console.log(media);
-
-          mediaSource.addEventListener("sourceopen", sourceOpen);
-
-          video.src = URL.createObjectURL(mediaSource);
-
-          async function sourceOpen(event) {
-
-            if (MediaSource.isTypeSupported(mimeCodec)) {
-              const sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-
-              for (let chunk of media) {
-                await new Promise(resolve => {
-                  sourceBuffer.appendBuffer(chunk.mediaBuffer);
-                  sourceBuffer.onupdateend = e => {
-                    sourceBuffer.onupdateend = null;
-                    sourceBuffer.timestampOffset += chunk.mediaDuration;
-                    console.log(mediaSource.duration);
-                    resolve()
-                  }
-                })
-
-              }
-              mediaSource.endOfStream();
-            }
-            else {
-              console.warn(mimeCodec + " not supported");
-            }
-          };
-        })()
+    <script type="text/javascript">
+        $(function () {
+            var groupName = '@Context.Request.Query["groupName"]';
+            GetVideos(0, groupName);
+        });
+        function GetVideos(_pageIndex, groupName) {
+            console.log({ pageIndex: _pageIndex, groupName: groupName });
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetVideos", "Home")',
+                data: { pageIndex: _pageIndex, groupName: groupName },
+                async: true,
+                dataType: "json",
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    var jsonData = JSON.parse(JSON.stringify(data));
+                    // console.log(jsonData);
+                    if (jsonData.length == 0) return;
+                    $.each(jsonData, function (key, value) {
+                        console.log(value.index);
+                        $(".row").append('<div class="col"><div class="card"> <a href="@Url.Action("Video", "Home")/' + value.index + '"> <img class="card-img-top" src="data:image/png;base64, ' + value.base64Image + '" /> <div class="card-body"> ' + value.videoName + ' </div> </a> </div></div>');
+                    });
+                    GetVideos(_pageIndex + 1, groupName);
+                }
+            });
+        }
     </script>
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
 }

@@ -7,16 +7,31 @@ namespace phantom.MVC.FileStream.Controllers
 {
     public class VideosController : Controller
     {
+
+        public static Dictionary<string, byte[]> keyValuePairs = new Dictionary<string, byte[]>();
+
         //F:\Bento4-SDK-1-6-0-641.x86_64-microsoft-win32\bin\mp4fragment.exe --fragment-duration 10000 F:\123.mp4 F:\1123.mp4
         int readStreamBufferSize = 65536;
-        string[] videoPaths = new string[] { "F:\\1123.mp4" };
 
         [EnableCors]
         [Route("api/online/{index}")]
-        public IActionResult Get(int index)
+        public IActionResult GetEncrypt(int index)
         {
-            var videoPath = videoPaths[index];
-            var stream = new System.IO.FileStream(videoPath, FileMode.Open, FileAccess.Read); //Got from storage
+            var filePath = Globals.Instance.VideoInfoCollection[index].FullPath!;
+            var isCPF = Globals.Instance.VideoInfoCollection[index].Extention == "cpf";
+            if (!keyValuePairs.ContainsKey(filePath) && isCPF)
+            {
+                var bytes = AesCryptographyService.Instance.ReadFileToByteArray(filePath);
+                bytes = AesCryptographyService.Instance.Decrypt(bytes);
+                bytes = AesCryptographyService.Instance.Decompress(bytes);
+                keyValuePairs.Add(filePath, bytes);
+            };
+            Stream stream;
+            if (isCPF)
+            {
+                stream = new MemoryStream(VideosController.keyValuePairs[filePath]);
+            }
+            else stream = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read); //Got from storage
             if (stream == null) return NotFound();
 
             Response.Headers["Accept-Ranges"] = "bytes";

@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="phantom.Common.DataType" Version="1.0.1" />
+    <PackageReference Include="phantom.Common.File" Version="1.0.0" />
+  </ItemGroup>
+
 </Project>

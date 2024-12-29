@@ -1,0 +1,33 @@
+﻿<link rel="stylesheet" href="~/Content/VideoPage.css">
+<style type="text/css">
+    a {
+        cursor: pointer;
+    }
+    img {
+        width: 20px;
+        height: 20px;
+    }
+    .rotateimg180 {
+        -webkit-transform: rotate(180deg);
+        -moz-transform: rotate(180deg);
+        -ms-transform: rotate(180deg);
+        -o-transform: rotate(180deg);
+        transform: rotate(180deg);
+    }
+</style>
+@using (var item = (DataEntities.VideoInfo)ViewBag.VideoInfo)
+{
+    <video style="height: 70%;" controls="controls" autoplay="autoplay" muted>
+        <source src="/api/online/@item.Index" type="@item.MineType">
+    </video>
+    <div style="width: 100%; display: inline-block; text-align: center;">
+        <div>
+            <a href='@Url.Action("Video", "Home", new { index = item.Index - 1 })' aria-label="previous">
+                <img class="rotateimg180" src="~/img/arrow.png" alt="previous" />
+            </a>
+            <a href='@Url.Action("Video", "Home", new { index = item.Index + 1 })' aria-label="next">
+                <img src="~/img/arrow.png" alt="next" />
+            </a>
+        </div>
+    </div>
+}

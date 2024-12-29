@@ -40,8 +40,6 @@
         private static List<VideoInfo> LoadVideoInfoCollection()
         {
             var videoInfoCollection = new List<VideoInfo>();
-            //string dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "App_Data");
-            //if (Directory.Exists(AppDomain.CurrentDomain.GetData("DataDirectory")!.ToString()) == false) Directory.CreateDirectory(AppDomain.CurrentDomain.GetData("DataDirectory")!.ToString()!);
             var otherVideos = Directory.GetFiles(FolderPath, "*.*", SearchOption.AllDirectories).Where(f => f.EndsWith(".mp4") || f.EndsWith(".wmv") || f.EndsWith(".ts") || f.EndsWith(".mkv") || f.EndsWith(".cpf"));
             foreach (var file in otherVideos)
             {

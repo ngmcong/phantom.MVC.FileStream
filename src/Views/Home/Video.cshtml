@@ -1,13 +1,15 @@
-﻿@* <link rel="stylesheet" href="~/Content/VideoPage.css"> *@
+﻿<link rel="stylesheet" href="~/css/video.css">
 @model DataEntities.VideoInfo
 <style type="text/css">
     a {
         cursor: pointer;
     }
+
     img {
         width: 20px;
         height: 20px;
     }
+
     .rotateimg180 {
         -webkit-transform: rotate(180deg);
         -moz-transform: rotate(180deg);
@@ -17,6 +19,16 @@
     }
 </style>
 <video controls="controls" autoplay="autoplay"></video>
+<div style="width: 100%; display: inline-block; text-align: center;">
+    <div>
+        <a href='@Url.Action("Video", "Home", new { index = @Model.Index - 1 })' aria-label="previous">
+            <img class="rotateimg180" src="~/img/arrow.png" alt="previous" />
+        </a>
+        <a href='@Url.Action("Video", "Home", new { index = @Model.Index + 1 })' aria-label="next">
+            <img src="~/img/arrow.png" alt="next" />
+        </a>
+    </div>
+</div>
 @section Scripts {
     <script>
         (async() => {
@@ -88,13 +100,3 @@
         })()
     </script>
 }
-<div style="width: 100%; display: inline-block; text-align: center;">
-    <div>
-        <a href='@Url.Action("Video", "Home", new { index = @Model.Index - 1 })' aria-label="previous">
-            <img class="rotateimg180" src="~/img/arrow.png" alt="previous" />
-        </a>
-        <a href='@Url.Action("Video", "Home", new { index = @Model.Index + 1 })' aria-label="next">
-            <img src="~/img/arrow.png" alt="next" />
-        </a>
-    </div>
-</div>

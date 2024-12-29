@@ -1,0 +1,9 @@
+video {
+    width: 80%;
+}
+
+@media all and (orientation:portrait) {
+    video {
+        width: 100%;
+    }
+}

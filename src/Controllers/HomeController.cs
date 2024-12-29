@@ -37,7 +37,7 @@ namespace phantom.MVC.FileStream.Controllers
 #else
         [OutputCache(Duration = 1440, VaryByParam = "pageIndex", Location = System.Web.UI.OutputCacheLocation.Client)]
 #endif
-        public JsonResult GetVideos(int pageIndex, string? groupName = null)
+        public async Task<JsonResult> GetVideos(int pageIndex, string? groupName = null)
         {
             var jsonDatas = Globals.Instance.VideoInfoCollection?.Where(x => string.IsNullOrEmpty(groupName) || x.GroupName == groupName).Skip(pageIndex * pageSize).Take(pageSize).ToList();
             if (jsonDatas?.Any(x => string.IsNullOrEmpty(x.Base64Image)) == true)
@@ -60,7 +60,17 @@ namespace phantom.MVC.FileStream.Controllers
                         goto Base64Image;
                     }
                     #region Grab thumbnail from a video
-                    //using (var engine = new Engine())
+                    await Task.CompletedTask;
+                    //var ffmpegFilePath = @"F:\ffmpeg-7.1-essentials_build\bin\ffmpeg.exe";
+                    //var service = MediaToolkitService.CreateInstance(ffmpegFilePath);
+                    //string dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "App_Data");
+                    //var saveThumbnailTask = new FfTaskSaveThumbnail(videoInf.FullPath,
+                    //    Path.Combine(dataDirectory, @"To_Save_Image.jpg"),
+                    //    TimeSpan.FromSeconds(10)
+                    //);
+                    //await service.ExecuteAsync(saveThumbnailTask);
+
+                    //using (var engine = new Engine(@"F:\ffmpeg-7.1-essentials_build\bin\ffmpeg.exe"))
                     //{
                     //    var inputFile = new MediaFile { Filename = videoInf.FullPath };
                     //    engine.GetMetadata(inputFile);
@@ -73,10 +83,12 @@ namespace phantom.MVC.FileStream.Controllers
                     //    }
                     //    var options = new ConversionOptions { Seek = TimeSpan.FromSeconds(seconds) };
 
-                    //    var outputFile = new MediaFile { Filename = Path.Combine(AppDomain.CurrentDomain.GetData("DataDirectory").ToString(), @"To_Save_Image.jpg") };
+                    //    string dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "App_Data");
+                    //    if (Directory.Exists(AppDomain.CurrentDomain.GetData("DataDirectory")!.ToString()) == false) Directory.CreateDirectory(AppDomain.CurrentDomain.GetData("DataDirectory")!.ToString()!);
+                    //    var outputFile = new MediaFile { Filename = Path.Combine(dataDirectory, @"To_Save_Image.jpg") };
                     //    engine.GetThumbnail(inputFile, outputFile, options);
-                    //    var filePath = Path.Combine(AppDomain.CurrentDomain.GetData("DataDirectory").ToString(), @"To_Save_Image.jpg");
-                    //    base64Image = VideoPlayer.Globals.ConvertImageBase64String(filePath);
+                    //    var filePath = Path.Combine(dataDirectory, @"To_Save_Image.jpg");
+                    //    base64Image = Globals.ConvertImageBase64String(filePath);
                     //}
                     #endregion Grab thumbnail from a video
                     Base64Image:

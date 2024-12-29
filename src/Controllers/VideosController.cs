@@ -18,6 +18,7 @@ namespace phantom.MVC.FileStream.Controllers
         public IActionResult GetEncrypt(int index)
         {
             var filePath = Globals.Instance.VideoInfoCollection[index].FullPath!;
+            Debug.WriteLine(filePath);
             var isCPF = Globals.Instance.VideoInfoCollection[index].Extention == "cpf";
             if (!keyValuePairs.ContainsKey(filePath) && isCPF)
             {

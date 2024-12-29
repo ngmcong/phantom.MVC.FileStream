@@ -92,9 +92,8 @@ namespace phantom.MVC.FileStream.Controllers
         public ActionResult Video(int index)
         {
             var videoInfo = Globals.Instance.VideoInfoCollection!.ElementAt(index).DeepCopy();
-            ViewBag.VideoInfo = videoInfo;
             ViewBag.Title = videoInfo.VideoName;
-            return View();
+            return View(videoInfo);
         }
     }
 }

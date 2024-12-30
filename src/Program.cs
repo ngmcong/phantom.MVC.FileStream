@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.ResponseCompression;
-using phantom.MVC.FileStream;
+using System.IO.Compression;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,11 +21,19 @@ builder.Services.AddCors(options =>
                     .AllowAnyMethod();
             });
     })
-    .AddResponseCompression()
     .AddResponseCompression(options =>
     {
-        options.Providers.Add<GzipCompressionProvider>();
         options.EnableForHttps = true;
+        options.Providers.Add<BrotliCompressionProvider>();
+        options.Providers.Add<GzipCompressionProvider>();
+    })
+    .Configure<BrotliCompressionProviderOptions>(options =>
+    {
+        options.Level = CompressionLevel.Fastest;
+    })
+    .Configure<GzipCompressionProviderOptions>(options =>
+    {
+        options.Level = CompressionLevel.SmallestSize;
     });
 
 
@@ -40,13 +48,12 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseResponseCompression();
 app.UseStaticFiles();
 
 app.UseRouting();
 app.UseCors();
 app.UseAuthorization();
-
-app.UseResponseCompression();
 
 app.MapControllerRoute(
    name: "Video",

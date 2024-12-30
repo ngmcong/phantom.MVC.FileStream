@@ -27,7 +27,7 @@
             GetVideos(0, groupName);
         });
         function GetVideos(_pageIndex, groupName) {
-            console.log({ pageIndex: _pageIndex, groupName: groupName });
+            // console.log({ pageIndex: _pageIndex, groupName: groupName });
             $.ajax({
                 type: "GET",
                 url: '@Url.Action("GetVideos", "Home")',
@@ -40,7 +40,7 @@
                     // console.log(jsonData);
                     if (jsonData.length == 0) return;
                     $.each(jsonData, function (key, value) {
-                        console.log(value.index);
+                        // console.log(value.index);
                         $(".row").append('<div class="col"><div class="card"> <a href="@Url.Action("Video", "Home")/' + value.index + '"> <img class="card-img-top" src="data:image/png;base64, ' + value.base64Image + '" /> <div class="card-body"> ' + value.videoName + ' </div> </a> </div></div>');
                     });
                     GetVideos(_pageIndex + 1, groupName);

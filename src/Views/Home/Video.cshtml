@@ -68,7 +68,7 @@
             })
           }));
 
-          console.log(media);
+          // console.log(media);
 
           mediaSource.addEventListener("sourceopen", sourceOpen);
 
@@ -85,7 +85,7 @@
                   sourceBuffer.onupdateend = e => {
                     sourceBuffer.onupdateend = null;
                     sourceBuffer.timestampOffset += chunk.mediaDuration;
-                    console.log(mediaSource.duration);
+                    // console.log(mediaSource.duration);
                     resolve()
                   }
                 })
